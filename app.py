@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 # Instancia de una aplicación de Flask
@@ -33,21 +33,14 @@ with app.app_context():
 def home():
     return 'Hola, Flask'
 
-@app.route('/articles')
-def listcl_articles():
+@app.route('/articles', methods=['GET'])
+def get_articles():
     articles = Article.query.all()
-
-    html = '''
-        <h1>Lista de articulos</h1>
-        <ul>
-            {% for article in articles %}
-            <li>{{article.title}}</li>
-
-            {% endfor %}
-        </ul>
-    '''
-    
-    return render_template_string(html, articles=articles)
+    return jsonify([{
+        'id': article.id,
+        'title': article.title,
+        'content': article.content
+    } for article in articles])
 
 
 @app.route('/create-article', methods=['GET', 'POST'])
