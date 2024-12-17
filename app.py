@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 
 # Instancia de una aplicación de Flask
@@ -33,6 +33,23 @@ with app.app_context():
 def home():
     return 'Hola, Flask'
 
+@app.route('/articles')
+def listcl_articles():
+    articles = Article.query.all()
+
+    html = '''
+        <h1>Lista de articulos</h1>
+        <ul>
+            {% for article in articles %}
+            <li>{{article.title}}</li>
+
+            {% endfor %}
+        </ul>
+    '''
+    
+    return render_template_string(html, articles=articles)
+
+
 @app.route('/create-article', methods=['GET', 'POST'])
 def create_article():
     if request.method == 'POST':
@@ -57,7 +74,9 @@ def create_article():
 # Crear endpoint con variable que llega a través de la url
 @app.route('/article/<int:article_id>')
 def view_article(article_id):
-    return f'Estas viendo el articulo número {article_id}'
+    article = Article.query.get_or_404(article_id)
+
+    return f'Estas viendo el articulo {article.title}'
 
 
 
